@@ -42,13 +42,27 @@ namespace Send2Kindle
 
         public MainWindow()
         {
+            bool IsError = false;
             if (!IsValidEmail(ConfigurationManager.AppSettings["kindleAddress"]))
             {
-                const string message = "Please add your Kindle's email address to App.config";
-                const string caption = "Error";
-                MessageBox.Show(message, caption);
-                System.Windows.Application.Current.Shutdown();
+                const string emailMessage = "Please add your Kindle's email address to Email.config";
+                const string emailCaption = "Error";
+                MessageBox.Show(emailMessage, emailCaption);
+                IsError = true;
             }
+
+            if (!System.IO.File.Exists("client_secret.json"))
+            {
+                const string authMessage = "Please add your Google account's client_secret.json file to the install directory";
+                const string authCaption = "Error";
+                const string authURL = "https://developers.google.com/gmail/api/quickstart/dotnet";
+                MessageBox.Show(authMessage, authCaption);
+                System.Diagnostics.Process.Start(authURL);
+                IsError = true;
+            }
+
+            if(IsError)
+                System.Windows.Application.Current.Shutdown();
 
             UserCredential credential;
 
