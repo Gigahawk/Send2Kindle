@@ -24,6 +24,7 @@ using System.Threading;
 using System.Net.Mail;
 
 using System.Configuration;
+using System.Windows.Threading;
 
 namespace Send2Kindle
 {
@@ -39,6 +40,8 @@ namespace Send2Kindle
         static string ApplicationName = "Send2Kindle";
 
         GmailService service;
+
+        bool quitOnSend;
 
         public MainWindow()
         {
@@ -61,8 +64,17 @@ namespace Send2Kindle
                 IsError = true;
             }
 
-            if(IsError)
+            if(!Boolean.TryParse(ConfigurationManager.AppSettings["quitOnSend"], out quitOnSend)){
+                const string quitMessage = "Please set quitOnSend in Email.config";
+                const string quitCaption = "Error";
+                MessageBox.Show(quitMessage, quitCaption);
+                IsError = true;
+            }
+
+            if (IsError)
                 System.Windows.Application.Current.Shutdown();
+
+
 
             UserCredential credential;
 
@@ -132,6 +144,15 @@ namespace Send2Kindle
 
         private void SendButton_Click(object sender, RoutedEventArgs e)
         {
+            this.instruction.Text = "Sending...";
+            this.instruction.Foreground = Brushes.Black;
+            this.filePath.IsEnabled = false;
+            this.SendButton.IsEnabled = false;
+            this.BrowseButton.IsEnabled = false;
+
+            //Wait for UI to update
+            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() => { })).Wait();
+
             var msg = new MailMessage();
 
             msg.To.Add(new MailAddress(ConfigurationManager.AppSettings["kindleAddress"]));
@@ -142,9 +163,25 @@ namespace Send2Kindle
             var sendMsg= new Message();
             sendMsg.Raw = Base64UrlEncode(mimeMsg.ToString());
 
-            Console.WriteLine("Sending id: " + sendMsg.Id);
-            var outMsg = service.Users.Messages.Send(sendMsg,"me").Execute();
-            Console.WriteLine("Sent id: " + outMsg.Id);
+            var outmessage = service.Users.Messages.Send(sendMsg,"me").Execute();
+
+           
+            this.filePath.Text = "";
+            this.filePath.IsEnabled = true;
+            this.BrowseButton.IsEnabled = true;
+
+            if (String.IsNullOrEmpty(outmessage.Id))
+            {
+                this.instruction.Text = "Error, couldn't send message";
+                this.instruction.Foreground = Brushes.Red;
+            } else
+            {
+                this.instruction.Text = "Please select a file to send";
+            }
+
+            if(quitOnSend)
+                System.Windows.Application.Current.Shutdown();
+
         }
 
         private string Base64UrlEncode(string input)

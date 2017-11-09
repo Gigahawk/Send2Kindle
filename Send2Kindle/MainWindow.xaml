@@ -5,11 +5,22 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Send2Kindle"
         mc:Ignorable="d"
-        Title="Send2Kindle" Height="175" Width="350">
+        
+        Title="Send2Kindle" 
+        Height="175" 
+        Width="350"
+        
+        MinHeight="175"
+        MinWidth="350">
     <Border Padding="15" AllowDrop="True" Drop="Window_Drop" Background="WhiteSmoke">
         <Border Padding="15" Background="White" BorderBrush="Silver" BorderThickness="1">
             <StackPanel VerticalAlignment="Center">
-                <TextBlock Text="Please select a file to send" FontWeight="Bold" HorizontalAlignment="Center"/>
+                
+                <TextBlock 
+                    x:Name="instruction"
+                    Text="Please select a file to send" 
+                    FontWeight="Bold" 
+                    HorizontalAlignment="Center"/>
                 
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -17,16 +28,22 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBox x:Name="filePath" 
-                             AllowDrop="True" 
-                             TextChanged="filePath_TextChanged" 
-                             Drop="Window_Drop" 
-                             DragOver="filePath_DragOver" 
-                             PreviewDragOver="filePath_DragOver"
-                             DragDrop.Drop="Window_Drop" 
-                             Grid.Column="0" 
-                             Margin="5"/>
-                    <Button x:Name="BrowseButton" Grid.Column="1" Click="BrowseButton_Click" Margin="5" Content="Browse"/>
+                    <TextBox 
+                        x:Name="filePath" 
+                        AllowDrop="True" 
+                        TextChanged="filePath_TextChanged" 
+                        Drop="Window_Drop" 
+                        DragOver="filePath_DragOver" 
+                        PreviewDragOver="filePath_DragOver"
+                        DragDrop.Drop="Window_Drop" 
+                        Grid.Column="0" 
+                        Margin="5"/>
+                    <Button 
+                        x:Name="BrowseButton" 
+                        Grid.Column="1"
+                        Click="BrowseButton_Click" 
+                        Margin="5" 
+                        Content="Browse"/>
                 </Grid>
                 
                 <Grid>
@@ -36,7 +53,14 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Button x:Name="SendButton" Grid.Column="1" IsEnabled="False" Click="SendButton_Click" Margin="5" Content="Send"/>
+                    <Button 
+                        x:Name="SendButton" 
+                        Grid.Column="1" 
+                        IsEnabled="False" 
+                        IsDefault="True"
+                        Click="SendButton_Click" 
+                        Margin="5" 
+                        Content="Send"/>
                 </Grid>
             </StackPanel>
         </Border>
