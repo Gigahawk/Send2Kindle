@@ -74,8 +74,6 @@ namespace Send2Kindle
             if (IsError)
                 System.Windows.Application.Current.Shutdown();
 
-
-
             UserCredential credential;
 
             using (var stream =
@@ -102,6 +100,64 @@ namespace Send2Kindle
             });
 
             InitializeComponent();
+
+            if (Clipboard.ContainsText(TextDataFormat.Text))
+            {
+                var clipString = Clipboard.GetText();
+                if (System.IO.File.Exists(clipString))
+                    this.filePath.Text = clipString;
+            }
+
+            if (Clipboard.ContainsFileDropList())
+            {
+                var list = Clipboard.GetFileDropList();
+                this.filePath.Text = list[0];
+            }
+
+            CommandManager.AddPreviewCanExecuteHandler(filePath, onPreviewCanExecute);
+            CommandManager.AddPreviewExecutedHandler(filePath, onPreviewExecuted);
+        }
+
+        private void onPreviewCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            // Allow pasting anything
+            if (e.Command == ApplicationCommands.Paste && (Clipboard.ContainsFileDropList() || Clipboard.ContainsText(TextDataFormat.Text) || Clipboard.ContainsImage()))
+            {
+                e.CanExecute = true;
+                e.Handled = true;
+            }
+        }
+
+        private void onPreviewExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (e.Command == ApplicationCommands.Paste)
+            {
+                if (Clipboard.ContainsFileDropList())
+                {
+                    this.filePath.Text = Clipboard.GetFileDropList()[0];
+                    e.Handled = true;
+                }
+
+                if (Clipboard.ContainsImage())
+                {
+                    Console.WriteLine("Handling image");
+
+                    var img = Clipboard.GetImage();
+
+                    var tempPath = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString() + ".png";
+
+                    Console.WriteLine("Saving temp to " + tempPath);
+
+                    using (var fileStream = new FileStream(tempPath, FileMode.Create))
+                    {
+                        BitmapEncoder encoder = new PngBitmapEncoder();
+                        encoder.Frames.Add(BitmapFrame.Create(img));
+                        encoder.Save(fileStream);
+                    }
+
+                    this.filePath.Text = tempPath;
+                }
+            }
         }
 
         private bool IsValidEmail(string email)
