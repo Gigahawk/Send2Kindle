@@ -122,7 +122,7 @@ namespace Send2Kindle
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
 
             dlg.DefaultExt = ".pdf";
-            dlg.Filter = "PDF Documents (.pdf)|*.pdf";
+            dlg.Filter = "PDF Documents (*.pdf)|*.pdf|Kindle Format (*.mobi, *.azw)|*.mobi;*.azw|Microsoft Word (*.doc, *.docx)|*.doc;*.docx|HTML Document (*.html, *.htm)|*.html;*.htm|Rich Text Document (*.rtf)|*.rtf|Image File (*.jpeg, *.jpg, *.gif, *.png, *.bmp)|*.jpeg;*.jpg;*.gif;*.png;*.bmp|All Files (*.*)|*.*";
 
             Nullable<bool> result = dlg.ShowDialog();
 
