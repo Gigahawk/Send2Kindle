@@ -146,8 +146,6 @@ namespace Send2Kindle
 
                     var tempPath = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString() + ".png";
 
-                    Console.WriteLine("Saving temp to " + tempPath);
-
                     using (var fileStream = new FileStream(tempPath, FileMode.Create))
                     {
                         BitmapEncoder encoder = new PngBitmapEncoder();
