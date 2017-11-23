@@ -18,6 +18,10 @@ using Google.Apis.Gmail.v1;
 using Google.Apis.Gmail.v1.Data;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
+using Google.Apis.Requests;
+using Google.Apis.Drive.v3;
+using Google.Apis.Drive.v3.Data;
+
 using System.IO;
 using System.Threading;
 
@@ -140,7 +144,6 @@ namespace Send2Kindle
 
                 if (Clipboard.ContainsImage())
                 {
-                    Console.WriteLine("Handling image");
 
                     var img = Clipboard.GetImage();
 
@@ -210,16 +213,29 @@ namespace Send2Kindle
             var msg = new MailMessage();
 
             msg.To.Add(new MailAddress(ConfigurationManager.AppSettings["kindleAddress"]));
-            msg.Attachments.Add(new Attachment(this.filePath.Text));
+            msg.Body = "hello from kindlesender";
+            //msg.Attachments.Add(new Attachment(this.filePath.Text));
 
             var mimeMsg = MimeKit.MimeMessage.CreateFromMailMessage(msg);
 
             var sendMsg= new Message();
             sendMsg.Raw = Base64UrlEncode(mimeMsg.ToString());
 
-            var outmessage = service.Users.Messages.Send(sendMsg,"me").Execute();
+            FileStream stream = new FileStream(this.filePath.Text, FileMode.Open, FileAccess.Read);
+            
+            this.instruction.Text = "Uploading?...";
+            //Wait for UI to update
+            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() => { })).Wait();
 
-           
+            var streamMessage = service.Users.Messages.Send(sendMsg, "me", stream, "message/rfc822");
+            streamMessage.Upload();
+
+            this.instruction.Text = "Sending Traditionally?...";
+            //Wait for UI to update
+            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() => { })).Wait();
+
+            var outmessage = service.Users.Messages.Send(sendMsg, "me").Execute();
+
             this.filePath.Text = "";
             this.filePath.IsEnabled = true;
             this.BrowseButton.IsEnabled = true;
